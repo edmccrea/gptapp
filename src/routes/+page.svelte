@@ -1,33 +1,87 @@
 <script lang="ts">
-  let systemInput = "y";
+  import { fly } from "svelte/transition";
+
+  import Modal from "$lib/components/Modal.svelte";
+
+  let apiKey = "";
+  let systemInput = "";
+  let disableSystemInput = false;
+  let readyForInput = false;
+
+  let showModal = false;
+
+  function setSystem() {
+    if (!apiKey) {
+      showModal = true;
+      return;
+    }
+    //Add system validation
+    if (!systemInput) return;
+    disableSystemInput = true;
+    readyForInput = true;
+  }
+  function openModal() {
+    showModal = true;
+  }
+
+  function setApiKey(event: CustomEvent) {
+    apiKey = event.detail;
+  }
 </script>
 
+{#if showModal}
+  <Modal bind:open={showModal} on:setApiKey={setApiKey} />
+{/if}
+
 <div class="flex flex-col items-center">
-  <h1 class="font-bold text-6xl mt-14">GPT API</h1>
+  <h1 class="font-bold text-6xl mt-14">
+    GPT <span class="font-gradient">API</span>
+  </h1>
   <input
     class="mt-8 w-full lg:w-2/3 px-3 py-1 transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
     type="text"
-    placeholder="System"
+    placeholder="Enter a system prompt..."
+    disabled={disableSystemInput}
+    bind:value={systemInput}
   />
-  <button
-    class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-zinc-800 transition-all duration-300"
-    >Set system</button
-  >
 
-  {#if systemInput}
-    <div class="mt-10 h-2/3 w-full grid lg:grid-cols-2 gap-4">
+  {#if !readyForInput}
+    <button
+      on:click={setSystem}
+      class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-emerald-400/10 transition-all duration-300"
+      >Set system</button
+    >
+  {/if}
+
+  {#if readyForInput}
+    <div class="mt-10 h-2/3 w-full grid lg:grid-cols-2 gap-4" in:fly>
       <textarea
-        class="w-full h-[20rem] lg:h-[30rem] border border-gray-400 rounded-md p-2 overflow-auto transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
+        class="bg-black/50 w-full h-[20rem] lg:h-[30rem] border border-gray-400 rounded-md p-2 overflow-auto transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
         placeholder="Input"
       />
 
       <textarea
-        class="w-full border border-gray-400 rounded-md h-[20rem] lg:h-[30rem] p-2 overflow-auto"
+        class="bg-black/50 w-full border border-gray-400 rounded-md h-[20rem] lg:h-[30rem] p-2 overflow-auto"
         placeholder="Awaiting input..."
         readonly
       />
     </div>
+
+    <button
+      class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-emerald-400/10 transition-all duration-300"
+      >Do the wizardy stuff</button
+    >
   {/if}
 
-  <button class="mt-4">Enter your API key</button>
+  <button class="mt-4 underline" on:click={openModal}
+    >{apiKey ? "Edit API key" : "Enter your API key"}</button
+  >
 </div>
+
+<style>
+  .font-gradient {
+    background: linear-gradient(90deg, #6ee7b7 0%, #047857 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+</style>

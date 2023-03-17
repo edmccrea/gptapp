@@ -9,11 +9,11 @@ import type { RequestHandler } from "./$types";
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
-    if (!OPENAI_KEY) {
+    const requestData = await request.json();
+
+    if (!OPENAI_KEY || !requestData.key) {
       throw new Error("OpenAI key not found");
     }
-
-    const requestData = await request.json();
 
     if (!requestData) {
       throw new Error("No data found");
@@ -34,7 +34,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const moderationRes = await fetch("https://api.openai.com/v1/moderations", {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_KEY}`,
+        Authorization: `Bearer ${OPENAI_KEY ? OPENAI_KEY : requestData.key}`,
       },
       method: "POST",
       body: JSON.stringify({
@@ -48,8 +48,7 @@ export const POST: RequestHandler = async ({ request }) => {
       throw new Error("Message flagged");
     }
 
-    const prompt =
-      "You are a very well spoken english man who works in the coal mines";
+    const prompt = requestData.prompt;
     tokenCount += getTokens(prompt);
 
     if (tokenCount >= 4000) {
