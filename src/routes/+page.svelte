@@ -1,5 +1,8 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
+  import { SSE } from "sse.js";
+  import type { ChatCompletionRequestMessage } from "openai";
+  import { PUBLIC_ENV } from "$env/static/public";
 
   import Modal from "$lib/components/Modal.svelte";
 
@@ -8,12 +11,19 @@
   let disableSystemInput = false;
   let readyForInput = false;
 
+  let query = "";
+  let answer = "";
+  let loading = false;
+  let chatMessages: ChatCompletionRequestMessage[] = [];
+
   let showModal = false;
 
   function setSystem() {
-    if (!apiKey) {
-      showModal = true;
-      return;
+    if (PUBLIC_ENV !== "dev") {
+      if (!apiKey) {
+        showModal = true;
+        return;
+      }
     }
     //Add system validation
     if (!systemInput) return;
@@ -26,6 +36,65 @@
 
   function setApiKey(event: CustomEvent) {
     apiKey = event.detail;
+  }
+
+  const handleSubmit = async () => {
+    loading = true;
+    chatMessages = [...chatMessages, { role: "user", content: query }];
+    const eventSource = new SSE("/api/chat", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      payload: JSON.stringify({
+        messages: chatMessages,
+        key: apiKey,
+        prompt: systemInput,
+      }),
+    });
+    query = "";
+
+    eventSource.addEventListener("error", handleError);
+    eventSource.addEventListener("message", (e) => {
+      try {
+        loading = false;
+        if (e.data === "[DONE]") {
+          chatMessages = [
+            ...chatMessages,
+            { role: "assistant", content: answer },
+          ];
+          answer = "";
+          return;
+        }
+
+        const completionResponse = JSON.parse(e.data);
+        const [{ delta }] = completionResponse.choices;
+
+        if (delta.content) {
+          answer = (answer ?? "") + delta.content;
+        }
+      } catch (e) {
+        handleError(e);
+      }
+    });
+
+    eventSource.stream();
+  };
+
+  function handleError<T>(error: T) {
+    loading = false;
+    query = "";
+    answer = "";
+    //Use a toast notifcation here?
+    console.error(error);
+  }
+
+  function reset() {
+    chatMessages = [];
+    answer = "";
+    query = "";
+    systemInput = "";
+    disableSystemInput = false;
+    readyForInput = false;
   }
 </script>
 
@@ -49,33 +118,68 @@
     <button
       on:click={setSystem}
       class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-emerald-400/10 transition-all duration-300"
-      >Set system</button
+      >Set system input</button
     >
   {/if}
 
   {#if readyForInput}
-    <div class="mt-10 h-2/3 w-full grid lg:grid-cols-2 gap-4" in:fly>
-      <textarea
-        class="bg-black/50 w-full h-[20rem] lg:h-[30rem] border border-gray-400 rounded-md p-2 overflow-auto transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
-        placeholder="Input"
-      />
+    {#if chatMessages.length}
+      <div
+        in:fly
+        class="h-fit bg-black/50 w-full lg:w-2/3 border border-gray-400 rounded-md mt-5 p-4"
+      >
+        {#each chatMessages as message}
+          {#if message.role === "user"}
+            <p class="py-1">
+              <span class="font-bold">You</span>: {message.content}
+            </p>
+          {:else}
+            <p class="py-1">
+              <span class="font-bold text-emerald-300">GPT</span>: {message.content}
+            </p>
+          {/if}
+        {/each}
+        {#if answer}
+          <p class="py-1">
+            <span class="font-bold text-emerald-300">GPT</span>: {answer}
+          </p>
+        {/if}
+        {#if loading}
+          <p class="py-1">
+            <span class="font-bold text-emerald-300">GPT</span>: Beep boop...
+          </p>
+        {/if}
+      </div>
+    {/if}
 
-      <textarea
-        class="bg-black/50 w-full border border-gray-400 rounded-md h-[20rem] lg:h-[30rem] p-2 overflow-auto"
-        placeholder="Awaiting input..."
-        readonly
-      />
-    </div>
-
-    <button
-      class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-emerald-400/10 transition-all duration-300"
-      >Do the wizardy stuff</button
+    <form
+      action=""
+      on:submit={handleSubmit}
+      class="w-full lg:w-2/3 flex flex-col items-center"
     >
+      <input
+        class="mt-8 w-full px-3 py-1 transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
+        type="text"
+        placeholder="Enter a message"
+        disabled={loading}
+        bind:value={query}
+      />
+
+      <button
+        on:click|preventDefault={handleSubmit}
+        class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-emerald-400/10 transition-all duration-300 w-fit"
+        >Do the wizardy stuff</button
+      >
+    </form>
   {/if}
 
-  <button class="mt-4 underline" on:click={openModal}
-    >{apiKey ? "Edit API key" : "Enter your API key"}</button
-  >
+  {#if chatMessages.length}
+    <button on:click={reset} class="mt-4 underline">Reset</button>
+  {:else}
+    <button class="mt-4 underline" on:click={openModal}
+      >{apiKey ? "Edit API key" : "Enter your API key"}</button
+    >
+  {/if}
 </div>
 
 <style>

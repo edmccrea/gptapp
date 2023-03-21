@@ -11,8 +11,10 @@ export const POST: RequestHandler = async ({ request }) => {
   try {
     const requestData = await request.json();
 
-    if (!OPENAI_KEY || !requestData.key) {
-      throw new Error("OpenAI key not found");
+    if (!OPENAI_KEY) {
+      if (!requestData.key) {
+        throw new Error("OpenAI key not found");
+      }
     }
 
     if (!requestData) {
@@ -71,7 +73,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const chatRes = await fetch("https://api.openai.com/v1/chat/completions", {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_KEY}`,
+        Authorization: `Bearer ${OPENAI_KEY ? OPENAI_KEY : requestData.key}`,
       },
       method: "POST",
       body: JSON.stringify(chatRequestOpts),

@@ -9,7 +9,7 @@
   </p>
   <p>
     <a
-      href="https://codeverter.vercel.app/"
+      href="https://www.youtube.com/watch?v=dXsZp39L2Jk&t=625s"
       target="_blank"
       rel="noreferrer"
       class="underline">Inspiration</a
