@@ -1,21 +1,22 @@
-import { OPENAI_KEY } from "$env/static/private";
-import { getTokens } from "$lib/helpers/tokenizer";
 import { json } from "@sveltejs/kit";
 import type {
   ChatCompletionRequestMessage,
   CreateChatCompletionRequest,
 } from "openai";
+
 import type { RequestHandler } from "./$types";
+import { getTokens } from "$lib/helpers/tokenizer";
+// import { OPENAI_KEY } from "$env/static/private";
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const requestData = await request.json();
 
-    if (!OPENAI_KEY) {
-      if (!requestData.key) {
-        throw new Error("OpenAI key not found");
-      }
+    // if (!OPENAI_KEY) {
+    if (!requestData.key) {
+      throw new Error("OpenAI key not found");
     }
+    // }
 
     if (!requestData) {
       throw new Error("No data found");
@@ -36,7 +37,8 @@ export const POST: RequestHandler = async ({ request }) => {
     const moderationRes = await fetch("https://api.openai.com/v1/moderations", {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_KEY ? OPENAI_KEY : requestData.key}`,
+        // Authorization: `Bearer ${OPENAI_KEY ? OPENAI_KEY : requestData.key}`,
+        Authorization: `Bearer ${requestData.key}`,
       },
       method: "POST",
       body: JSON.stringify({
@@ -73,7 +75,8 @@ export const POST: RequestHandler = async ({ request }) => {
     const chatRes = await fetch("https://api.openai.com/v1/chat/completions", {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_KEY ? OPENAI_KEY : requestData.key}`,
+        // Authorization: `Bearer ${OPENAI_KEY ? OPENAI_KEY : requestData.key}`,
+        Authorization: `Bearer ${requestData.key}`,
       },
       method: "POST",
       body: JSON.stringify(chatRequestOpts),

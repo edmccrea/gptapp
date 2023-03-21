@@ -2,7 +2,7 @@
   import { fly } from "svelte/transition";
   import { SSE } from "sse.js";
   import type { ChatCompletionRequestMessage } from "openai";
-  import { PUBLIC_ENV } from "$env/static/public";
+  // import { PUBLIC_ENV } from "$env/static/public";
 
   import Modal from "$lib/components/Modal.svelte";
 
@@ -19,12 +19,13 @@
   let showModal = false;
 
   function setSystem() {
-    if (PUBLIC_ENV !== "dev") {
-      if (!apiKey) {
-        showModal = true;
-        return;
-      }
+    // if (PUBLIC_ENV !== "dev") {
+    if (!apiKey) {
+      showModal = true;
+      return;
     }
+    // }
+
     //Add system validation
     if (!systemInput) return;
     disableSystemInput = true;
@@ -106,6 +107,15 @@
   <h1 class="font-bold text-6xl mt-14">
     GPT <span class="font-gradient">API</span>
   </h1>
+
+  <select
+    name=""
+    id=""
+    class="bg-transparent absolute bottom-5 right-5 border border-gray-400 rounded-md px-3 py-2 hover:cursor-pointer focus:outline-none"
+  >
+    <option value="">v3.5</option>
+    <option value="">v4 (Coming Soon)</option>
+  </select>
   <input
     class="mt-8 w-full lg:w-2/3 px-3 py-1 transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
     type="text"
