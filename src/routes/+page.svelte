@@ -15,8 +15,19 @@
   let answer = "";
   let loading = false;
   let chatMessages: ChatCompletionRequestMessage[] = [];
+  let scrollToDiv: HTMLElement;
 
   let showModal = false;
+
+  function scrollToBottom() {
+    setTimeout(function () {
+      scrollToDiv.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest",
+      });
+    }, 100);
+  }
 
   function setSystem() {
     // if (PUBLIC_ENV !== "dev") {
@@ -56,6 +67,7 @@
 
     eventSource.addEventListener("error", handleError);
     eventSource.addEventListener("message", (e) => {
+      scrollToBottom();
       try {
         loading = false;
         if (e.data === "[DONE]") {
@@ -79,6 +91,7 @@
     });
 
     eventSource.stream();
+    scrollToBottom();
   };
 
   function handleError<T>(error: T) {
@@ -191,6 +204,7 @@
     >
   {/if}
 </div>
+<div bind:this={scrollToDiv} />
 
 <style>
   .font-gradient {
