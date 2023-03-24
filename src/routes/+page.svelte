@@ -124,34 +124,32 @@
 {#if error}
   <Error />
 {/if}
+
 <div class="flex flex-col items-center">
   <h1 class="font-bold text-6xl mt-14">
     GPT <span class="font-gradient">API</span>
   </h1>
-
-  <select
-    name=""
-    id=""
-    class="bg-transparent absolute bottom-5 right-5 border border-gray-400 rounded-md px-3 py-2 hover:cursor-pointer focus:outline-none"
+  <form
+    action=""
+    class="w-full lg:w-2/3 flex flex-col items-center"
+    on:submit|preventDefault={setSystem}
   >
-    <option value="">v3.5</option>
-    <option value="">v4 (Coming Soon)</option>
-  </select>
-  <input
-    class="mt-8 w-full lg:w-2/3 px-3 py-1 transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
-    type="text"
-    placeholder="Enter a system prompt..."
-    disabled={disableSystemInput}
-    bind:value={systemInput}
-  />
+    <input
+      class="mt-8 w-full px-3 py-1 transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
+      type="text"
+      placeholder="Enter a system prompt..."
+      disabled={disableSystemInput}
+      bind:value={systemInput}
+    />
 
-  {#if !readyForInput}
-    <button
-      on:click={setSystem}
-      class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-emerald-400/10 transition-all duration-300"
-      >Set system input</button
-    >
-  {/if}
+    {#if !readyForInput}
+      <button
+        on:click={setSystem}
+        class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-emerald-400/10 transition-all duration-300"
+        >Set system input</button
+      >
+    {/if}
+  </form>
 
   {#if readyForInput}
     {#if chatMessages.length}

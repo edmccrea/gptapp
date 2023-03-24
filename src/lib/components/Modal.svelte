@@ -47,15 +47,17 @@
         </svg></button
       >
 
-      <input
-        type="password"
-        placeholder="Enter your OpenAI API key..."
-        class="w-4/5 px-3 py-1 focus:border-emerald-500 focus:border-[3px] transition-all duration-300 ml-[50px] "
-        bind:value={apiKey}
-      />
-      <button class="ml-[50px] mt-2 underline w-fit" on:click={setApiKey}
-        >Submit</button
-      >
+      <form action="" on:submit|preventDefault={setApiKey}>
+        <input
+          type="password"
+          placeholder="Enter your OpenAI API key..."
+          class="w-4/5 px-3 py-1 focus:border-emerald-500 focus:border-[3px] transition-all duration-300 ml-[50px] "
+          bind:value={apiKey}
+        />
+        <button class="ml-[50px] mt-2 underline w-fit" on:click={setApiKey}
+          >Submit</button
+        >
+      </form>
     </div>
   </div>
 {/if}
