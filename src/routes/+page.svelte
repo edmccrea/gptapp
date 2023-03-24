@@ -5,6 +5,7 @@
   // import { PUBLIC_ENV } from "$env/static/public";
 
   import Modal from "$lib/components/Modal.svelte";
+  import Error from "$lib/components/Error.svelte";
 
   let apiKey = "";
   let systemInput = "";
@@ -18,6 +19,7 @@
   let scrollToDiv: HTMLElement;
 
   let showModal = false;
+  let error = false;
 
   function scrollToBottom() {
     setTimeout(function () {
@@ -94,12 +96,15 @@
     scrollToBottom();
   };
 
-  function handleError<T>(error: T) {
+  function handleError<T>(err: T) {
     loading = false;
     query = "";
     answer = "";
-    //Use a toast notifcation here?
-    console.error(error);
+    console.error(err);
+    error = true;
+    setTimeout(() => {
+      error = false;
+    }, 5000);
   }
 
   function reset() {
@@ -116,6 +121,9 @@
   <Modal bind:open={showModal} on:setApiKey={setApiKey} />
 {/if}
 
+{#if error}
+  <Error />
+{/if}
 <div class="flex flex-col items-center">
   <h1 class="font-bold text-6xl mt-14">
     GPT <span class="font-gradient">API</span>
