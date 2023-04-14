@@ -213,8 +213,13 @@
 
       <button
         on:click|preventDefault={handleSubmit}
-        class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-emerald-400/10 transition-all duration-300 w-fit"
-        >Do the wizardy stuff</button
+        class="border border-gray-400 rounded-md mt-4 px-3 py-2 hover:bg-emerald-400/10 transition-all duration-300 w-fit disabled:bg-black disabled:text-gray-400"
+        disabled={loading || !query}
+        >{loading
+          ? "Loading..."
+          : !query
+          ? "Enter a prompt"
+          : "Do the wizardy stuff"}</button
       >
     </form>
   {/if}
