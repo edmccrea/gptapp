@@ -2,7 +2,6 @@
   import { fly } from "svelte/transition";
   import { SSE } from "sse.js";
   import type { ChatCompletionRequestMessage } from "openai";
-  // import { PUBLIC_ENV } from "$env/static/public";
 
   import Modal from "$lib/components/Modal.svelte";
   import Error from "$lib/components/Error.svelte";
@@ -32,14 +31,11 @@
   }
 
   function setSystem() {
-    // if (PUBLIC_ENV !== "dev") {
     if (!apiKey) {
       showModal = true;
       return;
     }
-    // }
 
-    //Add system validation
     if (!systemInput) return;
     disableSystemInput = true;
     readyForInput = true;
@@ -85,7 +81,8 @@
         const [{ delta }] = completionResponse.choices;
 
         if (delta.content) {
-          answer = (answer ?? "") + delta.content;
+          let formattedContent = delta.content.replace(/\n/g, "<br>");
+          answer = (answer ?? "") + formattedContent;
         }
       } catch (e) {
         handleError(e);
@@ -159,24 +156,44 @@
       >
         {#each chatMessages as message}
           {#if message.role === "user"}
-            <p class="py-1">
-              <span class="font-bold">You</span>: {message.content}
-            </p>
+            <div class="py-2 flex">
+              <div
+                class=" mr-4 w-[30px] h-[30px] min-w-[30px] flex items-center justify-center rounded-sm bg-emerald-700"
+              >
+                You
+              </div>
+              <div>{@html message.content}</div>
+            </div>
           {:else}
-            <p class="py-1">
-              <span class="font-bold text-emerald-300">GPT</span>: {message.content}
-            </p>
+            <div class="py-2 flex">
+              <div
+                class=" text-emerald-300 mr-4 w-[30px] h-[30px] min-w-[30px] flex items-center justify-center rounded-sm bg-emerald-500"
+              >
+                <img src="/openai.svg" alt="" />
+              </div>
+              <div>{@html message.content}</div>
+            </div>
           {/if}
         {/each}
         {#if answer}
-          <p class="py-1">
-            <span class="font-bold text-emerald-300">GPT</span>: {answer}
-          </p>
+          <div class="py-2 flex">
+            <div
+              class=" text-emerald-300 mr-4 w-[30px] h-[30px] min-w-[30px] flex items-center justify-center rounded-sm bg-emerald-500"
+            >
+              <img src="/openai.svg" alt="" />
+            </div>
+            <div>{@html answer}</div>
+          </div>
         {/if}
         {#if loading}
-          <p class="py-1">
-            <span class="font-bold text-emerald-300">GPT</span>: Beep boop...
-          </p>
+          <div class="py-2 flex">
+            <div
+              class=" text-emerald-300 mr-4 w-[30px] h-[30px] min-w-[30px] flex items-center justify-center rounded-sm bg-emerald-500"
+            >
+              <img src="/openai.svg" alt="" />
+            </div>
+            <div>Beep boop...</div>
+          </div>
         {/if}
       </div>
     {/if}
