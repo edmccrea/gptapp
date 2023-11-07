@@ -3,10 +3,13 @@
   import { fly } from "svelte/transition";
   import { SSE } from "sse.js";
   import type { ChatCompletionRequestMessage } from "openai";
+  // @ts-ignore
+  import CryptoJS from "crypto-js";
 
   import Modal from "$lib/components/Modal.svelte";
   import Error from "$lib/components/Error.svelte";
   import { currentModel } from "$lib/stores/current-model";
+  import { onMount } from "svelte";
 
   let apiKey = "";
   let systemInput = "";
@@ -21,6 +24,21 @@
 
   let showModal = false;
   let error = false;
+
+  onMount(async () => {
+    const res = await fetch("/api/encryption-key");
+    const encryptionKey = await res.text();
+    const encryptedMessage = localStorage.getItem("encryptedMessage");
+
+    if (encryptedMessage && encryptionKey) {
+      const bytes = CryptoJS.AES.decrypt(encryptedMessage, encryptionKey);
+      const decryptedMessage = bytes.toString(CryptoJS.enc.Utf8);
+
+      if (decryptedMessage) {
+        apiKey = decryptedMessage;
+      }
+    }
+  });
 
   function scrollToBottom() {
     setTimeout(function () {
@@ -46,7 +64,15 @@
     showModal = true;
   }
 
-  function setApiKey(event: CustomEvent) {
+  async function setApiKey(event: CustomEvent) {
+    const res = await fetch("/api/encryption-key");
+    const encryptionKey = await res.text();
+    console.log(encryptionKey);
+    const encryptedMessage = CryptoJS.AES.encrypt(
+      event.detail,
+      encryptionKey
+    ).toString();
+    localStorage.setItem("encryptedMessage", encryptedMessage);
     apiKey = event.detail;
   }
 
@@ -161,7 +187,7 @@
           {#if message.role === "user"}
             <div class="py-2 flex">
               <div
-                class=" mr-4 w-[30px] h-[30px] min-w-[30px] flex items-center justify-center rounded-sm bg-emerald-700"
+                class=" mr-4 w-[30px] h-[30px] min-w-[30px] flex items-center justify-center rounded-sm bg-sky-700"
               >
                 You
               </div>
