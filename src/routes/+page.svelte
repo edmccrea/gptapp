@@ -135,7 +135,7 @@
     on:submit|preventDefault={setSystem}
   >
     <input
-      class="mt-8 w-full px-3 py-1 transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
+      class="mt-8 w-full px-3 py-1 transition-all duration-300 focus:border-emerald-500"
       type="text"
       placeholder="Enter a system prompt..."
       disabled={disableSystemInput}
@@ -155,7 +155,7 @@
     {#if chatMessages.length}
       <div
         in:fly
-        class="h-fit bg-black/50 w-full lg:w-2/3 border border-gray-400 rounded-md mt-5 p-4"
+        class="h-fit bg-black/30 w-full lg:w-2/3 border border-gray-400 rounded-md mt-5 p-4"
       >
         {#each chatMessages as message}
           {#if message.role === "user"}
@@ -207,7 +207,7 @@
       class="w-full lg:w-2/3 flex flex-col items-center"
     >
       <input
-        class="mt-8 w-full px-3 py-1 transition-all duration-300 focus:border-emerald-500 focus:border-[3px]"
+        class="mt-8 w-full px-3 py-1 transition-all duration-300 focus:border-emerald-500"
         type="text"
         placeholder="Enter a message"
         disabled={loading}
