@@ -43,13 +43,6 @@
   </p>
   <p>
     <a
-      href="https://www.youtube.com/watch?v=dXsZp39L2Jk&t=625s"
-      target="_blank"
-      rel="noreferrer"
-      class="underline">Inspiration</a
-    >
-    &#xB7;
-    <a
       href="https://github.com/edmccrea"
       target="_blank"
       rel="noreferrer"
