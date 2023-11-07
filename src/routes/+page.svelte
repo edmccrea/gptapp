@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { get } from "svelte/store";
   import { fly } from "svelte/transition";
   import { SSE } from "sse.js";
   import type { ChatCompletionRequestMessage } from "openai";
 
   import Modal from "$lib/components/Modal.svelte";
   import Error from "$lib/components/Error.svelte";
+  import { currentModel } from "$lib/stores/current-model";
 
   let apiKey = "";
   let systemInput = "";
@@ -59,6 +61,7 @@
         messages: chatMessages,
         key: apiKey,
         prompt: systemInput,
+        model: get(currentModel),
       }),
     });
     query = "";
@@ -238,6 +241,7 @@
   .font-gradient {
     background: linear-gradient(90deg, #6ee7b7 0%, #047857 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 </style>

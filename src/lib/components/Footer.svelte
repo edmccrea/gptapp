@@ -1,18 +1,22 @@
 <script lang="ts">
-  // import { createEventDispatcher } from "svelte";
-
-  // const dispatch = createEventDispatcher<{ selectModel: string }>();
+  import { currentModel } from "$lib/stores/current-model";
 
   let selected: string;
 
+  $: currentModel.set(selected);
+
   const models = [
     {
-      name: "GPT-3.5",
-      value: "gpt-3.5-turbo",
+      name: "GPT-4 Turbo",
+      value: "gpt-4-1106-preview",
     },
     {
       name: "GPT-4",
       value: "gpt-4",
+    },
+    {
+      name: "GPT-3.5",
+      value: "gpt-3.5-turbo",
     },
   ];
 </script>
